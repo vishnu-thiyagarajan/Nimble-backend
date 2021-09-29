@@ -1,13 +1,30 @@
 const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+const subscriptionSchema = new Schema(
+  {
+    transactionid: { type: String, required: true },
+    amount: { type: String, required: true }
+  },
+  { timestamps: true }
+)
 const usersSchema = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     active: { type: Boolean, required: true, default: false },
-    role: { type: Schema.Types.ObjectId, ref: 'Roles', required: true }
+    role: { type: Schema.Types.ObjectId, ref: 'Roles', required: true },
+    location: { type: String, required: false },
+    phone: { type: String, required: false },
+    selfintro: { type: String, required: false },
+    imgurl: { type: String, required: false },
+    projects: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Projects',
+      required: false
+    },
+    subscription: { type: [subscriptionSchema], required: false }
   },
   { timestamps: true }
 )

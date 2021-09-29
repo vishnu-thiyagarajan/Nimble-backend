@@ -20,6 +20,6 @@ app.use(
 app.use(express.urlencoded({ extended: false }))
 app.use('/api', require('./controls/role'))
 app.use('/api', require('./controls/user'))
-app.listen(process.env.PORT)
+app.listen(process.env.PORT || 5000)
 
 module.exports = app

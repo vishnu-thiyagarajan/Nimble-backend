@@ -1,1 +1,1 @@
-require("./test-pages.js");
+require("./user-test.js");
