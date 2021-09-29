@@ -32,9 +32,15 @@ passport.use(
     async (req, email, password, done) => {
       try {
         const userfound = await UserModel.findOne({ email });
-        if (userfound) return done(null, null, 'User already registered');
+        if (userfound) { return done(null, null, 'User already registered'); }
         const token = jwt.sign(
-          { user: { name: req.body.name, email, role: req.body.role._id } },
+          {
+            user: {
+              name: req.body.name,
+              email,
+              role: req.body.role._id
+            }
+          },
           process.env.JWT_ACC_ACTIVATE
         );
         mailOptions.html = `<h2>Please click the link below to activate</h2><br/>
@@ -77,7 +83,9 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const user = await UserModel.findOne({ email }).populate('role').exec();
+        const user = await UserModel.findOne({ email })
+          .populate('role')
+          .exec();
 
         if (!user) {
           return done(null, false, { message: 'User not found' });
@@ -89,7 +97,9 @@ passport.use(
         }
 
         if (!user.active) {
-          return done(null, false, { message: 'Please activate your account' });
+          return done(null, false, {
+            message: 'Please activate your account'
+          });
         }
 
         return done(null, user, { message: 'Logged in Successfully' });
