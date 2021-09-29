@@ -1,20 +1,20 @@
 name: node workflow
 
 on:
-  push:
-    branches: [auth-gitactions]
-  pull_request:
-    branches: [auth-gitactions]
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: stefanoeb/eslint-action@1.0.2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm i
+        steps:
+            - uses: actions/checkout@v2
+            - uses: stefanoeb/eslint-action@1.0.2
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: npm i
