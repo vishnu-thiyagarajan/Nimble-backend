@@ -11,7 +11,7 @@
     },
     "rules": {
         "indent": ["warn", 4],
-        "linebreak-style": ["warn", "windows"],
+        "linebreak-style": [0, "windows"],
         "quotes": ["warn", "double"],
         "semi": ["warn", "always"],
         "no-unused-vars": "warn"
