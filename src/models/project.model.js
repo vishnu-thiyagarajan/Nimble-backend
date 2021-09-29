@@ -1,16 +1,22 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const standup = new Schema({
-    date: { type: Date, required: false },
-    yesterday: { type: String, required: false },
-    today: { type: String, required: false },
-    blocker: { type: String, required: false },
-});
-const member = new Schema({
-    userId: { type: String, required: true },
-    standups: { type: [standup], required: false },
-});
+const standup = new Schema(
+    {
+        date: { type: Date, required: false },
+        yesterday: { type: String, required: false },
+        today: { type: String, required: false },
+        blocker: { type: String, required: false },
+    },
+    { _id: false }
+);
+const member = new Schema(
+    {
+        userId: { type: String, required: true },
+        standups: { type: [standup], required: false },
+    },
+    { _id: false }
+);
 const ticket = new Schema({
     ticketId: { type: String, required: true },
     title: { type: String, required: true },
