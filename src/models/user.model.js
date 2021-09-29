@@ -1,13 +1,13 @@
-const bcrypt = require('bcrypt')
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const subscriptionSchema = new Schema(
   {
     transactionid: { type: String, required: true },
     amount: { type: String, required: true }
   },
   { timestamps: true }
-)
+);
 const usersSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -27,16 +27,16 @@ const usersSchema = new Schema(
     subscription: { type: [subscriptionSchema], required: false }
   },
   { timestamps: true }
-)
+);
 usersSchema.pre('save', async function (next) {
-  const hash = await bcrypt.hash(this.password, 10)
-  this.password = hash
-  next()
-})
+  const hash = await bcrypt.hash(this.password, 10);
+  this.password = hash;
+  next();
+});
 usersSchema.methods.isValidPassword = async function (password) {
-  const user = this
-  const compare = await bcrypt.compare(password, user.password)
-  return compare
-}
-const UsersModel = mongoose.model('Users', usersSchema)
-module.exports = UsersModel
+  const user = this;
+  const compare = await bcrypt.compare(password, user.password);
+  return compare;
+};
+const UsersModel = mongoose.model('Users', usersSchema);
+module.exports = UsersModel;

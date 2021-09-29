@@ -2,9 +2,9 @@ name: node workflow
 
 on:
   push:
-    branches: [main]
+    branches: [auth-gitactions]
   pull_request:
-    branches: [main]
+    branches: [auth-gitactions]
 
 jobs:
   build:
