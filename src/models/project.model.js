@@ -28,7 +28,7 @@ const projectSchema = new Schema({
     targetEndDate: { type: Date, required: false },
     members: { type: [member], required: false },
     tickets: { type: [ticket], required: false },
-    sprints: { type: [Schema.Types.ObjectId], required: false },
+    sprints: { type: [Schema.Types.ObjectId], ref: "Sprints", required: false },
 });
 
 const ProjectsModel = mongoose.model("Projects", projectSchema);

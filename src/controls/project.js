@@ -1,8 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const ProjectsModel = require("../models/project.model");
+const ProjectsModel = mongoose.model("Projects");
 const passport = require("passport");
-const UsersModel = require("../models/user.model");
+const UsersModel = mongoose.model("Users");
 const router = express.Router();
 
 router.post(
@@ -10,7 +10,10 @@ router.post(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            if (await ProjectsModel.exists({ projectName: "Default Project" }))
+            const user = await UsersModel.findOne({
+                email: req.user.email,
+            }).exec();
+            if (user.projects.length >= 1)
                 return res.status(200).send("A default project already exists");
             const project = await ProjectsModel.create({
                 projectName: "Default Project",
@@ -19,6 +22,8 @@ router.post(
                 tickets: [],
                 sprints: [],
             });
+            user.projects.push(project._id);
+            user.save();
             return res.json(project.toObject());
         } catch (error) {
             return res
@@ -33,7 +38,6 @@ router.get(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            // const user = req.user;
             const user = await UsersModel.findOne({
                 email: req.user.email,
             }).exec();
