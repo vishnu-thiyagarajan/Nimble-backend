@@ -3,6 +3,7 @@ require("dotenv").config();
 require("./role.model.js");
 require("./user.model.js");
 require("./project.model.js");
+require("./sprint.model.js");
 
 const dbURI = process.env.MONGODB_URI;
 
