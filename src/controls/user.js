@@ -132,11 +132,11 @@ router.put(
             const updatePayload = res.body.imgurl
                 ? { imgurl: res.body.imgUrl }
                 : {
-                      name: req.body.name,
-                      phone: req.body.phone,
-                      location: req.body.location,
-                      selfintro: req.body.selfintro,
-                  };
+                    name: req.body.name,
+                    phone: req.body.phone,
+                    location: req.body.location,
+                    selfintro: req.body.selfintro,
+                };
             await UserModel.findOneAndUpdate(
                 { email: req.body.email },
                 updatePayload,
