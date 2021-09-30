@@ -129,18 +129,17 @@ router.put(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const updatePayload = res.body.imgurl
-                ? { imgurl: res.body.imgUrl }
+            const updatePayload = req.body.imgurl
+                ? { imgurl: req.body.imgurl }
                 : {
-                    name: req.body.name,
-                    phone: req.body.phone,
-                    location: req.body.location,
-                    selfintro: req.body.selfintro,
-                };
+                      name: req.body.name,
+                      phone: req.body.phone,
+                      location: req.body.location,
+                      selfintro: req.body.selfintro,
+                  };
             await UserModel.findOneAndUpdate(
-                { email: req.body.email },
-                updatePayload,
-                { new: true }
+                { email: req.user.email },
+                updatePayload
             );
             res.status(200).send({ message: "Updated Successfully" });
         } catch (err) {
