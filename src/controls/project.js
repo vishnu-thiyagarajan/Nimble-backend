@@ -144,7 +144,7 @@ router.post(
                     const ticketIndex = result.tickets.findIndex(
                         (ticket) => ticket.ticketId === ticketDetails.ticketId
                     );
-                    if (ticketIndex != -1) {
+                    if (ticketIndex !== -1) {
                         result.tickets[ticketIndex] = ticketDetails;
                     } else {
                         res.sendStatus(404).send("Ticket was not found").end();
@@ -184,7 +184,7 @@ router.post(
                     const ticketIndex = result.tickets.findIndex(
                         (ticket) => ticket.ticketId === ticketId
                     );
-                    if (ticketIndex != -1) {
+                    if (ticketIndex !== -1) {
                         result.tickets.splice(ticketIndex, 1);
                     } else {
                         res.sendStatus(404).send("Ticket id not valid.").end();
@@ -247,8 +247,8 @@ router.post(
                     const ticketIndex = result.tickets.findIndex(
                         (ticket) => ticket.ticketId === ticketId
                     );
-                    if (ticketIndex != -1) {
-                         //Add Validation If srpint should not be completed
+                    if (ticketIndex !== -1) {
+                        // Add Validation If srpint should not be completed
                         result.tickets[ticketIndex].status = status;
                     } else {
                         res.sendStatus(404).send("Ticket was not found").end();
