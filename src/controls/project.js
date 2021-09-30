@@ -97,4 +97,182 @@ router.post(
     }
 );
 
+router.post(
+    "/addTicket",
+    passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
+    async (req, res) => {
+        const { projectId, ticketDetails } = req.body;
+        ProjectsModel.findById(projectId, (err, result) => {
+            if (!err) {
+                if (!result) {
+                    res.sendStatus(404).send("Project was not found").end();
+                } else {
+                    result.tickets.push(ticketDetails);
+                    result.save(function (saveerr, saveresult) {
+                        if (!saveerr) {
+                            res.status(200).send({
+                                success: true,
+                                data: ticketDetails,
+                            });
+                        } else {
+                            res.status(400).send({
+                                success: false,
+                                message: saveerr.message,
+                            });
+                        }
+                    });
+                }
+            } else {
+                res.status(400).send(err.message);
+            }
+        });
+    }
+);
+
+router.post(
+    "/updateTicket",
+    passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
+    async (req, res) => {
+        const { projectId, ticketDetails } = req.body;
+        ProjectsModel.findById(projectId, (err, result) => {
+            if (!err) {
+                if (!result) {
+                    res.sendStatus(404).send("Project was not found").end();
+                } else {
+                    const ticketIndex = result.tickets.findIndex(
+                        (ticket) => ticket.ticketId === ticketDetails.ticketId
+                    );
+                    if (ticketIndex != -1) {
+                        result.tickets[ticketIndex] = ticketDetails;
+                    } else {
+                        res.sendStatus(404).send("Ticket was not found").end();
+                    }
+                    result.save(function (saveerr, saveresult) {
+                        if (!saveerr) {
+                            res.status(200).send({
+                                success: true,
+                                data: ticketDetails,
+                            });
+                        } else {
+                            res.status(400).send({
+                                success: false,
+                                message: saveerr.message,
+                            });
+                        }
+                    });
+                }
+            } else {
+                res.status(400).send(err.message);
+            }
+        });
+    }
+);
+
+router.post(
+    "/deleteTicket",
+    passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
+    async (req, res) => {
+        const { projectId, ticketId } = req.body;
+        ProjectsModel.findById(projectId, (err, result) => {
+            if (!err) {
+                if (!result) {
+                    res.sendStatus(404).send("Project was not found.").end();
+                } else {
+                    const ticketIndex = result.tickets.findIndex(
+                        (ticket) => ticket.ticketId === ticketId
+                    );
+                    if (ticketIndex != -1) {
+                        result.tickets.splice(ticketIndex, 1);
+                    } else {
+                        res.sendStatus(404).send("Ticket id not valid.").end();
+                    }
+                    result.save(function (saveerr, saveresult) {
+                        if (!saveerr) {
+                            res.status(200).send({
+                                success: true,
+                                message: "Ticket deleted successfully ...",
+                            });
+                        } else {
+                            res.status(400).send({
+                                success: false,
+                                message: saveerr.message,
+                            });
+                        }
+                    });
+                }
+            } else {
+                res.status(400).send(err.message);
+            }
+        });
+    }
+);
+
+router.post(
+    "/getAllTickets",
+    passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
+    async (req, res) => {
+        const { projectId } = req.body;
+        ProjectsModel.findById(projectId, (err, result) => {
+            if (!err) {
+                if (!result) {
+                    res.sendStatus(404).send("Project was not found.").end();
+                } else {
+                    res.status(200).send({
+                        success: true,
+                        data: result.tickets,
+                    });
+                }
+            } else {
+                res.status(400).send(err.message);
+            }
+        });
+    }
+);
+
+router.post(
+    "/changeTicketStatus",
+    passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER, roles.ROLE_DEVELOPER),
+    async (req, res) => {
+        const { projectId, ticketId, status } = req.body;
+        ProjectsModel.findById(projectId, (err, result) => {
+            if (!err) {
+                if (!result) {
+                    res.sendStatus(404).send("Project was not found.").end();
+                } else {
+                    const ticketIndex = result.tickets.findIndex(
+                        (ticket) => ticket.ticketId === ticketId
+                    );
+                    if (ticketIndex != -1) {
+                         //Add Validation If srpint should not be completed
+                        result.tickets[ticketIndex].status = status;
+                    } else {
+                        res.sendStatus(404).send("Ticket was not found").end();
+                    }
+                   
+                    result.save(function (saveerr, saveresult) {
+                        if (!saveerr) {
+                            res.status(200).send({
+                                success: true,
+                                message: `Ticket status update to ${status}`,
+                            });
+                        } else {
+                            res.status(400).send({
+                                success: false,
+                                message: saveerr.message,
+                            });
+                        }
+                    });
+                }
+            } else {
+                res.status(400).send(err.message);
+            }
+        });
+    }
+);
+
 module.exports = router;

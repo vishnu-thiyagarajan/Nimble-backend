@@ -19,7 +19,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api", require("./controls/role"));
 app.use("/api", require("./controls/user"));
 app.use("/api", require("./controls/project"));
+
 app.use("/api", require("./controls/sprint"));
+
 
 app.listen(process.env.PORT || 5000);
 
