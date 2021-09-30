@@ -4,9 +4,45 @@ const SprintsModel = mongoose.model("Sprints");
 const passport = require("passport");
 const ProjectsModel = mongoose.model("Projects");
 const router = express.Router();
+const checkIsInRole = require("../utils");
+const { roles } = require("../constants");
+
+// router.get(
+//     "/retrospectives",
+//     passport.authenticate("jwt", { session: false }),
+//     async (req, res) => {
+//         try {
+//             const sprint = await SprintsModel.findOne({
+//                 _id: req.body.sprint_id,
+//             }).exec();
+//             return res.send(sprint.retrospectives);
+//         } catch (error) {
+//             return res
+//                 .status(500)
+//                 .send({ message: "server side error", error: { ...error } });
+//         }
+//     }
+// );
+
+// router.get(
+//     "/activities",
+//     passport.authenticate("jwt", { session: false }),
+//     async (req, res) => {
+//         try {
+//             const sprint = await SprintsModel.findOne({
+//                 _id: req.body.sprint_id,
+//             }).exec();
+//             return res.send(sprint.activities);
+//         } catch (error) {
+//             return res
+//                 .status(500)
+//                 .send({ message: "server side error", error: { ...error } });
+//         }
+//     }
+// );
 
 router.post(
-    "/activities",
+    "/activity",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
@@ -32,6 +68,7 @@ router.post(
 router.post(
     "/retrospectives",
     passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
     async (req, res) => {
         try {
             await SprintsModel.findOneAndUpdate(
@@ -59,9 +96,9 @@ router.post(
 router.put(
     "/completesprint",
     passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
     async (req, res) => {
         try {
-            console.log("----------", res.body);
             await SprintsModel.findOneAndUpdate(
                 {
                     _id: req.body.sprint_id,
@@ -80,6 +117,7 @@ router.put(
 router.post(
     "/startsprint",
     passport.authenticate("jwt", { session: false }),
+    checkIsInRole(roles.ROLE_SCRUMMASTER),
     async (req, res) => {
         try {
             let sprints = [];
