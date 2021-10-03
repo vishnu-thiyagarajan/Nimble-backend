@@ -1,20 +1,20 @@
-const redis = require("redis");
-const RedisServer = require("redis-server");
- 
-// Simply pass the port that you want a Redis server to listen on.
-const server = new RedisServer(6379);
- 
-server.open((err) => {
-    if (err === null) {
-        console.log("connected ...");
-    }
-});
-// const client = redis.createClient();
+require("dotenv").config();
+const Redis = require("ioredis");
 
-// client.on("error", function(error) {
-//   console.error(error);
-// });
+module.exports = function(){
+    const redis = new Redis({
+        port: 17598,
+        host: process.env.REDIS_STRING, 
+        family: 4,
+        password: process.env.REDIS_PASSWORD,
+        db: 0,
+    });
 
-// client.on("connect",()=>{
-//     console.log("redis connected ...")
-// })
+    redis.on("connect",()=>{
+        console.log("Redis is connected ...")
+    })
+    
+    redis.on("error",()=>{
+        console.log("Error Connecting Reddis ...")
+    })
+} 
