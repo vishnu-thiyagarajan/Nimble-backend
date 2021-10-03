@@ -148,15 +148,6 @@ router.put(
     }
 );
 
-// router.delete('/user', passport.authenticate('jwt', { session: false }), async (req, res)=>{
-//   try {
-//       const user = await UserModel.findByIdAndDelete(req.body._id.trim())
-//       res.status(200).send({ message: 'Deleted Successfully' });
-//     } catch (err) {
-//       res.status(500).send({ message: 'server side error' })
-//     }
-// })
-
 router.post("/register", async (req, res, next) => {
     passport.authenticate("signup", async (err, user, info) => {
         if (err) return res.status(500).send({ message: err });
@@ -167,13 +158,7 @@ router.post("/register", async (req, res, next) => {
     })(req, res, next);
 });
 
-// router.post("/createuser", async (req, res, next) => {
-//     passport.authenticate("signup", async (err, user, info) => {
-//         if (err) return res.status(500).send({ message: err });
-//         if (!user || info) return res.status(300).send({ message: info });
-//         res.status(200).send(user);
-//     })(req, res, next);
-// });
+let refreshTokens = [];
 
 router.post("/login", async (req, res, next) => {
     passport.authenticate("login", async (err, user, info) => {
@@ -193,17 +178,46 @@ router.post("/login", async (req, res, next) => {
                     email: user.email,
                     role: user.role,
                 };
-                const token = jwt.sign(
+                const token = generateAccessToken({ user: body });
+                const refreshToken = jwt.sign(
                     { user: body },
                     process.env.JWT_ACC_ACTIVATE
                 );
-
-                return res.json({ ...body, token });
+                refreshTokens.push(refreshToken);
+                res.cookie("token", token, { httpOnly: true }).json({
+                    ...body,
+                    token: refreshToken,
+                });
             });
         } catch (error) {
             return next(error);
         }
     })(req, res, next);
+});
+
+router.post("/token", (req, res) => {
+    const refreshToken = req.body.token;
+    if (refreshToken === null) return res.sendStatus(401);
+    if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+    jwt.verify(refreshToken, process.env.JWT_ACC_ACTIVATE, (err, user) => {
+        if (err) return res.sendStatus(403);
+        const token = generateAccessToken({ user: user.user });
+        res.cookie("token", token, { httpOnly: true }).send({
+            message: "token refreshed!",
+        });
+    });
+});
+
+function generateAccessToken(user) {
+    return jwt.sign(user, process.env.JWT_ACC_ACTIVATE, {
+        expiresIn: "15m",
+    });
+}
+
+router.delete("/logout", (req, res) => {
+    res.clearCookie("token");
+    refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
+    res.sendStatus(204);
 });
 
 module.exports = router;
