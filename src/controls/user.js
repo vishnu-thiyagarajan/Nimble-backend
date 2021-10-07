@@ -7,6 +7,8 @@ const router = express.Router();
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const Redis = require("ioredis");
+const redis = new Redis();
 
 require("../passport");
 
@@ -158,7 +160,24 @@ router.post("/register", async (req, res, next) => {
     })(req, res, next);
 });
 
-let refreshTokens = [];
+const removeRefreshToken = async (destroytoken) => {
+    let refreshTokens = await getRefreshTokens();
+    refreshTokens = refreshTokens.filter((token) => token !== destroytoken);
+    await setRefreshTokens(refreshTokens);
+};
+const pushRefreshToken = async (token) => {
+    let refreshTokens = await getRefreshTokens();
+    if (!refreshTokens) refreshTokens = [];
+    refreshTokens.push(token);
+    await setRefreshTokens(refreshTokens);
+};
+const setRefreshTokens = async (obj) => {
+    await redis.set("refreshTokens", JSON.stringify(obj));
+};
+const getRefreshTokens = async () => {
+    const refreshTokens = await redis.get("refreshTokens");
+    return JSON.parse(refreshTokens);
+};
 
 router.post("/login", async (req, res, next) => {
     passport.authenticate("login", async (err, user, info) => {
@@ -183,7 +202,7 @@ router.post("/login", async (req, res, next) => {
                     { user: body },
                     process.env.JWT_ACC_ACTIVATE
                 );
-                refreshTokens.push(refreshToken);
+                await pushRefreshToken(refreshToken);
                 res.cookie("token", token, { httpOnly: true }).json({
                     ...body,
                     token: refreshToken,
@@ -195,9 +214,10 @@ router.post("/login", async (req, res, next) => {
     })(req, res, next);
 });
 
-router.post("/token", (req, res) => {
+router.post("/token", async (req, res) => {
     const refreshToken = req.body.token;
     if (refreshToken === null) return res.sendStatus(401);
+    const refreshTokens = await getRefreshTokens();
     if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
     jwt.verify(refreshToken, process.env.JWT_ACC_ACTIVATE, (err, user) => {
         if (err) return res.sendStatus(403);
@@ -210,13 +230,13 @@ router.post("/token", (req, res) => {
 
 function generateAccessToken(user) {
     return jwt.sign(user, process.env.JWT_ACC_ACTIVATE, {
-        expiresIn: "15m",
+        expiresIn: "15s",
     });
 }
 
-router.delete("/logout", (req, res) => {
+router.delete("/logout", async (req, res) => {
+    await removeRefreshToken(req.body.token);
     res.clearCookie("token");
-    refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
     res.sendStatus(204);
 });
 
